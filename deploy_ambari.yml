@@ -1,0 +1,98 @@
+---
+# set hostname, ip for mapping relation ip, hostname on hadoop
+- hosts: "{{ hadoop }}"
+  name: config /etc/hosts and set hostname
+  tags: config_etc_hosts
+  vars_files:
+  - files/vars.yml
+  tasks:
+  - name: configure /etc/hosts
+    tags:
+      - config
+      - reconfig
+    ansible.builtin.copy:
+      src: files/{{ etcHost }}
+      dest: /etc/hosts
+      owner: root
+      group: root
+      mode: '0644'
+      backup: yes
+  - name: set hostname
+    tags:
+      - config
+    shell: |
+      hostname=$(grep $(hostname -i) /etc/hosts | awk '{print $2}')
+      if [ -n "${hostname}" ];then
+         hostnamectl --static set-hostname  ${hostname}
+      fi
+
+# install ambari server 
+- hosts: "{{ ambari_server }}"
+  name: install ambari server
+  gather_facts: false
+  tags: 
+  - ready_init
+  vars_files:
+  - files/vars.yml
+  tasks:
+  - name: download ambari hdp repo from cos
+    ansible.builtin.script: ./files/1_get_hdp.sh {{ hdpDir }} {{ jdkDir }}
+    args:
+      executable: /bin/bash
+  - name: install nginx server and config  
+    ansible.builtin.script: ./files/2_set_nginx.sh {{ ambariRepoPath }} {{ ambariNginxConfPath }}
+    args:
+      executable: /bin/bash
+  - name: set  ambari repo 
+    ansible.builtin.script: ./files/3_set_repo.sh {{ ambariRepo }} {{ ambariRepoHost }} {{ hdpRepo }}
+    args:
+      executable: /bin/bash
+  - name: install ambari server and setup something
+    ansible.builtin.script: ./files/4_install_ambari.sh {{ databaseDir }} {{ mysqlRootPwd }} {{ ambariDb }} {{ ambariDbPwd }} {{ hiveDb }} {{ hiveDbPwd }}
+    args:
+      executable: /bin/bash
+  - name: setup ambari server
+    tags: config_ambari_setup
+    ansible.builtin.script: ./files/5_ambari_setup.exp {{ javaHome }}  {{ ambariDbPwd }}
+    args:
+      executable: /usr/bin/expect
+  - name: import  ambari ddl
+    tags: import_ambari_ddl
+    ansible.builtin.script: ./files/6_import_ddl.sh
+    args:
+      executable: /bin/bash
+
+# ambari server 机器已存在不必安装, ambari server  需设置 hostname                    
+- hosts: "{{ hadoop }}"
+  name: deploy_java
+  gather_facts:  true
+  tags: deploy_java
+  tasks:
+  - name: Create a directory /data/app if it does not exist
+    tags: 
+      - deploy_java
+    file:
+      path: /data/app
+      state: directory
+      mode: '0755'
+    when: ansible_nodename != ambari_server
+  - name: copy /data/app/jdk1.8.0_311 to remote location /data/app
+    tags:
+      - deploy_java
+    synchronize:
+      src: /data/app/jdk1.8.0_311
+      dest: /data/app
+      delete: yes
+      recursive: yes
+      rsync_path: /usr/bin/rsync
+    when: ansible_nodename != ambari_server 
+  - name: check java home
+    tags: deploy_java
+    shell: |
+      javaHome=/data/app/jdk1.8.0_311
+      if ! grep -q  "${javaHome}/bin/jps" <<< "$(ls -lh /usr/bin/jps)";then
+        ln -s -f /data/app/jdk1.8.0_311/bin/jps /usr/bin/jps
+      fi
+      if ! grep -q  "${javaHome}/bin/java" <<< "$(ls -lh /usr/bin/java)";then
+        ln -s -f /data/app/jdk1.8.0_311/bin/java /usr/bin/java
+      fi

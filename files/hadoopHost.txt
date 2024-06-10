@@ -1,0 +1,9 @@
+10.72.66.241   ambari01.prod.rc.com  nn01.prod.rc.com   ambari.hdprepo.com  ambariserver.com
+10.72.66.242   ambari02.prod.rc.com  nn02.prod.rc.com
+10.72.66.243   ambari03.prod.rc.com  hive01.prod.rc.com
+10.72.66.174   ambari04.prod.rc.com  dn01.prod.rc.com
+10.72.66.175   ambari05.prod.rc.com  dn02.prod.rc.com
+10.72.66.176   ambari06.prod.rc.com  dn03.prod.rc.com
+10.72.66.244   ambari07.prod.rc.com  nm01.prod.rc.com
+10.72.66.245   ambari08.prod.rc.com  nm02.prod.rc.com
+10.72.66.246   ambari09.prod.rc.com  nm03.prod.rc.com

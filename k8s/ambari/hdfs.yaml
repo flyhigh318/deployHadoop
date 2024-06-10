@@ -1,0 +1,48 @@
+---
+apiVersion: v1
+kind: Service
+metadata: 
+  name: hdfs
+  namespace: bigdata
+spec:
+  ports:
+    - name: tcp-50070-50070
+      port: 50070
+      protocol: TCP
+      targetPort: 50070
+  sessionAffinity: None
+  type: ClusterIP
+
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: hdfs
+  namespace: bigdata
+subsets:
+- addresses:
+  - ip: 10.147.1.140
+  ports:
+  - name: tcp-50070-50070
+    port: 50070
+    protocol: TCP
+
+---
+apiVersion: apisix.apache.org/v2
+kind: ApisixRoute
+metadata:
+  name: hdfs
+  namespace: bigdata
+spec:
+  http:
+  - backends:
+    - serviceName: hdfs
+      servicePort: 50070
+    match:
+      hosts:
+      - hdfs-ui.ngc-de.example.com
+      paths:
+      - /*
+    name: hdfs
+
+

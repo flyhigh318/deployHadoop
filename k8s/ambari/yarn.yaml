@@ -1,0 +1,46 @@
+---
+apiVersion: v1
+kind: Service
+metadata: 
+  name: yarn
+  namespace: bigdata
+spec:
+  ports:
+    - name: tcp-8088-8088
+      port: 8088
+      protocol: TCP
+      targetPort: 8088
+  sessionAffinity: None
+  type: ClusterIP
+
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: yarn
+  namespace: bigdata
+subsets:
+- addresses:
+  - ip: 10.147.1.140
+  ports:
+  - name: tcp-8088-8088
+    port: 8088
+    protocol: TCP
+
+---
+apiVersion: apisix.apache.org/v2
+kind: ApisixRoute
+metadata:
+  name: yarn
+  namespace: bigdata
+spec:
+  http:
+  - backends:
+    - serviceName: yarn
+      servicePort: 8088
+    match:
+      hosts:
+      - yarn-ui.ngc-de.example.com
+      paths:
+      - /*
+    name: yarn

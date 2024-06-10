@@ -1,0 +1,27 @@
+---
+# set /etc/hosts
+etcHost: "hadoopHost.txt"
+javaHome: "/data/app/jdk1.8.0_311"
+
+# set 1_get_hdp.sh env
+hdpDir: "/var/www/html/hadoop"
+jdkDir: "/data/app"
+
+# set 2_set_nginx.sh env
+ambariRepoPath: "/var/www/html/hadoop"
+ambariNginxConfPath: "/etc/nginx/nginx.conf"
+
+# set 3_set_repo.sh env
+ambariRepoHost: "ambari.hdprepo.com"
+ambariRepo: "/etc/yum.repos.d/ambari.repo"
+hdpRepo: "/etc/yum.repos.d/hdp.repo"
+
+# set 4_install_ambari.sh env
+databaseDir: "/data/app/mysql"
+mysqlRootPwd: "Bigdata-aliyun@2023"
+ambariDb: "ambari"
+ambariUser: "ambari"
+ambariDbPwd: "Bigdata_123"
+hiveDb: "hive"
+hiveUser: "hive"
+hiveDbPwd: "Hive_123"

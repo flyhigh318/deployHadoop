@@ -1,0 +1,31 @@
+[namenode]
+nn01.rc.com  ansible_ssh_host=10.72.66.241
+nn02.rc.com  ansible_ssh_host=10.72.66.242
+
+[hive]
+hive01.rc.com  ansible_ssh_host=10.72.66.243
+
+[datanode]
+dn01.rc.com  ansible_ssh_host=10.72.66.174
+dn02.rc.com  ansible_ssh_host=10.72.66.175
+dn03.rc.com  ansible_ssh_host=10.72.66.176
+
+[yarn]
+nm01.rc.com  ansible_ssh_host=10.72.66.244
+nm02.rc.com  ansible_ssh_host=10.72.66.245
+nm03.rc.com  ansible_ssh_host=10.72.66.246
+
+[hadoop:children]
+namenode
+hive
+datanode
+yarn 
+
+## 必须配置
+[hdprepo]
+ambari.hdprepo.com  ansible_ssh_host=10.72.66.241
+ambariserver.com    ansible_ssh_host=10.72.66.241
+
+## ambariserver主机名必须设置
+[ambariserver]
+ambari01.prod.rc.com  ansible_ssh_host=10.72.66.241

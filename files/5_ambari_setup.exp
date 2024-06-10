@@ -1,0 +1,73 @@
+#!/usr/bin/expect
+set javaHome [lindex $argv 0]
+set ambariDbPwd [lindex $argv 1]
+set timeout -1
+spawn /usr/sbin/ambari-server setup
+# enable debug
+# exp_internal 1
+# -re regular
+# -ex clos glob match, default glob
+
+expect {
+  -ex "OK to continue \[y/n\] (y)? " 
+  { send "\n"; exp_continue; }  
+  -ex "Customize user account for ambari-server daemon \[y/n\] (n)? " 
+  { send "\n"; }
+}
+expect {
+  -ex "Enter choice (1): "
+  { send "2\r"; }
+}
+expect {
+  -ex "Path to JAVA_HOME: "    
+  {send "$javaHome\r";}
+}
+expect {
+  -ex "Enable Ambari Server to download and install GPL Licensed LZO packages \[y/n\] (n)? "
+  { send "\r"; }
+}
+expect {
+  -ex "Enter advanced database configuration \[y/n\] (n)? "
+  { send "y\r"; }
+}
+expect {
+  -ex "Enter choice (1): "
+  { send "3\r"; }
+}
+expect {
+  -ex "Hostname (localhost): "
+  { send "\r"; }
+}
+expect {
+  -ex "Port (3306): "
+  { send "\r"; }
+}
+expect {
+  -ex "Database name (ambari): "
+  { send "\r"; }
+}
+expect {
+  -ex "Username (ambari): " 
+  { send "\r"; }
+}
+expect {
+  -ex "Enter Database Password (bigdata): "    
+  { send "$ambariDbPwd\r"; }
+}
+expect {
+  -ex "Re-enter password: "    
+  { send "$ambariDbPwd\r"; }
+}
+expect {
+  -ex "Should ambari use existing default jdbc /usr/share/java/mysql-connector-java.jar \[y/n\] (y)? "
+  { send "y\r"; }
+}
+expect {
+  -ex "Proceed with configuring remote database connection properties \[y/n\] (y)? "
+  { send "\r"; }
+}
+expect {
+  ".*# "   
+  { send "exit\r"; }
+}
+puts "exit\r"
